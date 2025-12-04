@@ -1,0 +1,82 @@
+const { Fragment } = require("react/jsx-runtime")
+
+{
+  user(id: "40"){
+    id
+    firstName
+    age
+    company{
+      id
+      name
+    }
+  }
+}
+----------------------------------------------
+{
+  company(id: "1"){
+  	name
+  }
+}
+-----------------------------------------------
+{
+  company(id: "1"){
+  	name
+    users {
+      firstName
+    }
+  }
+}
+----------------------- Fragment--------------------------
+{
+   apple: company(id:"1"){
+    id
+    name
+    description
+  }
+  google: company(id:"2"){
+    id
+    name
+    description
+  }
+}
+
+equals to-----------------
+{
+   apple: company(id:"1"){
+    ...companyDetails
+  }
+  google: company(id:"2"){
+    ...companyDetails
+  }
+}
+
+fragment companyDetails on Company{
+  id
+  name
+  description
+}
+
+--------------------------- mutation add user------------------------------
+mutation {
+  addUser(firstName:"Palak", age: 26){
+    id
+    firstName
+    age
+  }
+}
+--------------------------- mutation delete ----------
+mutation {
+  deleteUser(id: "a5bDxWc"){
+    id
+    
+  }
+}
+
+--------------------mutation update----------------
+mutation {
+  editUser(id: "40", age: 11, firstName: "Nicky"){
+    id
+    age
+    firstName
+  }
+}
