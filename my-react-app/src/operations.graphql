@@ -83,3 +83,17 @@ mutation AddCompany($name: String!, $description: String) {
     description
   }
 }
+
+subscription OnUserAdded {
+  userAdded {
+    id
+    firstName
+    age
+    companyId
+    company {
+      id
+      name
+      description
+    }
+  }
+}

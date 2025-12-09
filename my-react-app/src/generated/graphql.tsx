@@ -77,6 +77,11 @@ export type RootQueryTypeUserArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  userAdded?: Maybe<User>;
+};
+
 export type User = {
   __typename?: 'User';
   age?: Maybe<Scalars['Int']['output']>;
@@ -143,6 +148,11 @@ export type AddCompanyMutationVariables = Exact<{
 
 
 export type AddCompanyMutation = { __typename?: 'Mutation', addCompany?: { __typename?: 'Company', id?: string | null, name?: string | null, description?: string | null } | null };
+
+export type OnUserAddedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OnUserAddedSubscription = { __typename?: 'Subscription', userAdded?: { __typename?: 'User', id?: string | null, firstName?: string | null, age?: number | null, companyId?: string | null, company?: { __typename?: 'Company', id?: string | null, name?: string | null, description?: string | null } | null } | null };
 
 
 export const GetUsersDocument = gql`
@@ -479,3 +489,40 @@ export function useAddCompanyMutation(baseOptions?: Apollo.MutationHookOptions<A
 export type AddCompanyMutationHookResult = ReturnType<typeof useAddCompanyMutation>;
 export type AddCompanyMutationResult = Apollo.MutationResult<AddCompanyMutation>;
 export type AddCompanyMutationOptions = Apollo.BaseMutationOptions<AddCompanyMutation, AddCompanyMutationVariables>;
+export const OnUserAddedDocument = gql`
+    subscription OnUserAdded {
+  userAdded {
+    id
+    firstName
+    age
+    companyId
+    company {
+      id
+      name
+      description
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnUserAddedSubscription__
+ *
+ * To run a query within a React component, call `useOnUserAddedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnUserAddedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnUserAddedSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOnUserAddedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<OnUserAddedSubscription, OnUserAddedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnUserAddedSubscription, OnUserAddedSubscriptionVariables>(OnUserAddedDocument, options);
+      }
+export type OnUserAddedSubscriptionHookResult = ReturnType<typeof useOnUserAddedSubscription>;
+export type OnUserAddedSubscriptionResult = Apollo.SubscriptionResult<OnUserAddedSubscription>;

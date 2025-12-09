@@ -4,6 +4,7 @@ import {
   useAddUserMutation,
   useEditUserMutation,
   useDeleteUserMutation,
+  useOnUserAddedSubscription,
   type GetUsersQuery,
 } from '../generated/graphql';
 import './UserList.css';
@@ -21,6 +22,13 @@ export const UserList = () => {
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Live updates: when a user is added elsewhere, refetch the list
+  useOnUserAddedSubscription({
+    onData: () => {
+      refetch();
+    },
+  });
 
   type RawUser = NonNullable<NonNullable<GetUsersQuery['users']>>[number];
   type UserItem = { id: string } & NonNullable<NonNullable<GetUsersQuery['users']>[number]>;

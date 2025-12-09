@@ -1,5 +1,9 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
+const { createServer } = require('http');
+const { WebSocketServer } = require('ws');
+const { useServer } = require('graphql-ws/use/ws');
+const { PubSub } = require('graphql-subscriptions');
 const {
   GraphQLSchema,
   GraphQLObjectType,
@@ -12,7 +16,12 @@ const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+
+// Restrictive CORS to support credentials from the Vite dev server
+const ALLOWED_ORIGIN = 'http://localhost:5173';
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }));
+const httpServer = createServer(app);
+const pubsub = new PubSub();
 
 // JSON Server URL
 const JSON_SERVER_URL = 'http://localhost:3000';
@@ -110,7 +119,11 @@ const mutation = new GraphQLObjectType({
       resolve(parentValue, { firstName, age, companyId }) {
         return axios
           .post(`${JSON_SERVER_URL}/users`, { firstName, age, companyId })
-          .then(res => res.data);
+          .then(res => res.data)
+          .then(newUser => {
+            pubsub.publish('USER_ADDED', { userAdded: newUser });
+            return newUser;
+          });
       }
     },
     deleteUser: {
@@ -153,9 +166,22 @@ const mutation = new GraphQLObjectType({
   }
 });
 
+// Subscriptions
+const RootSubscription = new GraphQLObjectType({
+  name: 'Subscription',
+  fields: {
+    userAdded: {
+      type: UserType,
+      subscribe: () => pubsub.asyncIterator('USER_ADDED'),
+      resolve: (payload) => payload.userAdded
+    }
+  }
+});
+
 const schema = new GraphQLSchema({
   query: RootQuery,
-  mutation
+  mutation,
+  subscription: RootSubscription
 });
 
 app.use(
@@ -166,7 +192,15 @@ app.use(
   })
 );
 
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/graphql'
+});
+
+useServer({ schema }, wsServer);
+
 const PORT = 4000;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`GraphQL server running on http://localhost:${PORT}/graphql`);
+  console.log(`GraphQL WS server running on ws://localhost:${PORT}/graphql`);
 });
