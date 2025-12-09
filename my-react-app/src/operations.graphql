@@ -1,0 +1,85 @@
+query GetUsers {
+  users {
+    id
+    firstName
+    age
+    companyId
+    company {
+      id
+      name
+      description
+    }
+  }
+}
+
+query GetUser($id: String!) {
+  user(id: $id) {
+    id
+    firstName
+    age
+    companyId
+    company {
+      id
+      name
+      description
+    }
+  }
+}
+
+query GetCompanies {
+  companies {
+    id
+    name
+    description
+    users {
+      id
+      firstName
+      age
+    }
+  }
+}
+
+query GetCompany($id: String!) {
+  company(id: $id) {
+    id
+    name
+    description
+    users {
+      id
+      firstName
+      age
+    }
+  }
+}
+
+mutation AddUser($firstName: String!, $age: Int!, $companyId: String) {
+  addUser(firstName: $firstName, age: $age, companyId: $companyId) {
+    id
+    firstName
+    age
+    companyId
+  }
+}
+
+mutation EditUser($id: String!, $firstName: String, $age: Int, $companyId: String) {
+  editUser(id: $id, firstName: $firstName, age: $age, companyId: $companyId) {
+    id
+    firstName
+    age
+    companyId
+  }
+}
+
+mutation DeleteUser($id: String!) {
+  deleteUser(id: $id) {
+    id
+  }
+}
+
+mutation AddCompany($name: String!, $description: String) {
+  addCompany(name: $name, description: $description) {
+    id
+    name
+    description
+  }
+}
